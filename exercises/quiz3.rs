@@ -18,16 +18,36 @@
 
 // I AM NOT DONE
 
-pub struct ReportCard {
-    pub grade: f32,
+trait GradeType<T> {
+    fn print(&self) -> String;
+}
+
+struct GradeNum(f32);
+
+impl GradeType<f32> for GradeNum {
+    fn print(&self) -> String {
+        self.0.to_string()
+    }
+}
+
+struct GradeStr(String);
+
+impl GradeType<String> for GradeStr {
+    fn print(&self) -> String {
+        self.0.clone()
+    }
+}
+
+pub struct ReportCard<T> {
+    pub grade: Box<dyn GradeType<T>>,
     pub student_name: String,
     pub student_age: u8,
 }
 
-impl ReportCard {
+impl<T> ReportCard<T> {
     pub fn print(&self) -> String {
         format!("{} ({}) - achieved a grade of {}",
-            &self.student_name, &self.student_age, &self.grade)
+            &self.student_name, &self.student_age, &self.grade.print())
     }
 }
 
@@ -37,8 +57,8 @@ mod tests {
 
     #[test]
     fn generate_numeric_report_card() {
-        let report_card = ReportCard {
-            grade: 2.1,
+        let report_card : ReportCard<f32> = ReportCard {
+            grade: Box::new(GradeNum(2.1)),
             student_name: "Tom Wriggle".to_string(),
             student_age: 12,
         };
@@ -51,8 +71,8 @@ mod tests {
     #[test]
     fn generate_alphabetic_report_card() {
         // TODO: Make sure to change the grade here after you finish the exercise.
-        let report_card = ReportCard {
-            grade: 2.1,
+        let report_card : ReportCard<String> = ReportCard {
+            grade: Box::new(GradeStr("A+".to_string())),
             student_name: "Gary Plotter".to_string(),
             student_age: 11,
         };
